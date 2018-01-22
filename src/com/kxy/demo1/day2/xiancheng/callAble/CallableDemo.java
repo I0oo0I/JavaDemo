@@ -14,7 +14,7 @@ public class CallableDemo {
 		
 		List<Future<String>> results = new ArrayList<>();
 		for(int i = 0; i < 10; i++) {
-			//另外一个线程，执行线程任务
+			//另外一个线程，执行线程任务，返回一个结果
 			results.add(exec.submit(new TaskWithResult(i)));
 		}
 		//main() 方法线程继续执行，fs.isDone,判断检查结果是否已经准备就绪，

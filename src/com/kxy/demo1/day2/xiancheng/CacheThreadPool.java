@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 /**
  * java.util.concurrent 包中的 执行器（Executor）管理Thread 对象，简化并发开发
- * Executor 提供一个间接层，由之歌中介对象执行任务
+ * Executor 提供一个间接层，由这个中介对象执行任务
  * Executor 允许你管理异步任务的执行，而无须显示地管理线程的生命周期
  * 
  * @author Administrator
@@ -19,6 +19,7 @@ public class CacheThreadPool {
 		//如果没有现有线程可用，将创建一个新线程并将其添加到池中。未使用60秒的线程被终止并从缓存中删除。
 		//因此，一个长期闲置的池不会消耗任何资源
 		//需要多少线程，创建多少线程
+		//线程池为无限大，当执行第二个任务时第一个任务已经完成，会复用执行第一个任务的线程，而不用每次新建线程。
 		ExecutorService exec  = Executors.newCachedThreadPool();
 		
 		//创建一个线程池，该线程池重新使用固定数量的线程，这些线程运行在一个共享的无界队列上。
@@ -34,7 +35,9 @@ public class CacheThreadPool {
 		for(int i = 0; i < 5; i ++) {
 			exec.execute(new LiftOff());
 		}
-		//当前线程，会执行shutdown被调用之前所提交的所有任务
+		//当前线程，会执行 shutdown被 调用之前 所提交的所有任务
 		exec.shutdown();
+		//后面再加一个，会报错，新增任务，无法执行
+		//exec.execute(new LiftOff());
 	}
 }

@@ -2,6 +2,9 @@ package com.kxy.demo1.day2.xiancheng;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import com.kxy.demo1.day2.xiancheng.data.SleepData;
 
 /**
  * java.util.concurrent 包中的 执行器（Executor）管理Thread 对象，简化并发开发
@@ -13,7 +16,7 @@ import java.util.concurrent.Executors;
  */
 public class CacheThreadPool {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 		//创建一个线程池，该线程池根据需要创建新线程，但在它们可用时将重用以前构建的线程。
 		//这些池通常会改进执行许多短期异步任务的程序的性能。如果可用，调用执行将重用以前构建的线程。
 		//如果没有现有线程可用，将创建一个新线程并将其添加到池中。未使用60秒的线程被终止并从缓存中删除。
@@ -35,9 +38,26 @@ public class CacheThreadPool {
 		for(int i = 0; i < 5; i ++) {
 			exec.execute(new LiftOff());
 		}
-		//当前线程，会执行 shutdown被 调用之前 所提交的所有任务
+		exec.execute(new SleepData());
+		//当shutdown方法被调用使，ExecutorService 停止接收新的任务并且等待
+		//已提交的任务（包括提交正在执行和提交未执行的）执行完成。当所有提交的任务
+		//执行完成，线程池即被关闭
 		exec.shutdown();
-		//后面再加一个，会报错，新增任务，无法执行
+		//后面再加一个，会报错，新增任务，无法提交
 		//exec.execute(new LiftOff());
+		
+		// awaitTermination 抛出了 InterruptedException 阻塞错误
+		// 调用该方法会被阻塞，直到  所有任务完成并且 shutdown请求被调用，
+		// 或者参数中定义的 timeout 时间到达，或者当前线程被打断
+		// 返回值是boolean类型，true ExecutorService 关闭
+		// false 未关闭
+		// 通常和 shutdown 配合使用，来关闭线程池
+		while(!exec.awaitTermination(1L, TimeUnit.SECONDS)) {
+			System.out.println("线程池没有关闭");
+			
+			//试图停止所有正在执行的活动任务，暂停处理正在等待的任务，并返回等待执行的任务列表。
+			//exec.shutdownNow(); 
+		}
+		System.out.println("线程池已经别关闭");
 	}
 }
